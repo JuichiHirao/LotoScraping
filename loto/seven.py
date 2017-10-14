@@ -11,8 +11,8 @@ from bs4 import BeautifulSoup
 
 # url = 'http://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt6-201603.html'
 # url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201609.html'
-url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201611.html'
-# url = 'https://www.mizuhobank.co.jp/takarakuji/loto/loto7/index.html'
+# url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201710.html'
+url = 'https://www.mizuhobank.co.jp/takarakuji/loto/loto7/index.html'
 
 
 with urllib.request.urlopen(url) as response:
@@ -109,42 +109,45 @@ for i, table in enumerate(type_tk):
     '''
 
     db = postgresql.open(conn_str)
-    
-    sql = "INSERT INTO seven_lotteries( " \
-        + "lottery_date, times, num_set " \
-        + ", one_unit, one_amount, two_unit, two_amount " \
-        + ", three_unit, three_amount, four_unit, four_amount " \
-        + ", five_unit, five_amount " \
-        + ", six_unit, six_amount, carryover, sales " \
-        + ", created_at, updated_at " \
-        + ") " \
-        + "VALUES (" \
-        + " $1, $2, $3" \
-        + ", $4, $5, $6, $7" \
-        + ", $8, $9, $10, $11 " \
-        + ", $12, $13 " \
-        + ", $14, $15, $16, $17 " \
-        + ", $18, $19);"
 
-    make_seven_lotteries = db.prepare(sql)
-    carry_over = decimal.Decimal(lottery_info[6][0])
+    get_lotteries = db.prepare("SELECT created_at FROM seven_lotteries WHERE times = $1")
 
-    if carry_over <= 2147483646:
+    with db.xact():
+        cnt = 0
+        for row in get_lotteries(int(times)):
+            cnt += 1
+
+        if cnt > 0:
+            print("DATABASE EXIST " + times + " [" + str(row["created_at"]) + "]")
+            continue
+        else:
+            print("DATABASE NOT EXIST " + times)
+
+        sql = "INSERT INTO seven_lotteries( " \
+            + "lottery_date, times, num_set " \
+            + ", one_unit, one_amount, two_unit, two_amount " \
+            + ", three_unit, three_amount, four_unit, four_amount " \
+            + ", five_unit, five_amount " \
+            + ", six_unit, six_amount, carryover, sales " \
+            + ", created_at, updated_at " \
+            + ") " \
+            + "VALUES (" \
+            + " $1, $2, $3" \
+            + ", $4, $5, $6, $7" \
+            + ", $8, $9, $10, $11 " \
+            + ", $12, $13 " \
+            + ", $14, $15, $16, $17 " \
+            + ", $18, $19);"
+
+        make_seven_lotteries = db.prepare(sql)
+        carry_over = decimal.Decimal(lottery_info[6][0])
+
         make_seven_lotteries(datetime.strptime(lotteries_date, '%Y-%m-%d'), int(times), ",".join(lottery_num),
                                 int(lottery_info[0][0]), int(lottery_info[0][1]), int(lottery_info[1][0]), int(lottery_info[1][1]),
                                 int(lottery_info[2][0]), int(lottery_info[2][1]), int(lottery_info[3][0]), int(lottery_info[3][1]),
                                 int(lottery_info[4][0]), int(lottery_info[4][1]),
                                 int(lottery_info[5][0]), int(lottery_info[5][1]), carry_over, int(lottery_info[6][1]),
                                 datetime.now(), datetime.now())
-    else:
-        make_seven_lotteries(datetime.strptime(lotteries_date, '%Y-%m-%d'), int(times), ",".join(lottery_num),
-                                int(lottery_info[0][0]), int(lottery_info[0][1]), int(lottery_info[1][0]), int(lottery_info[1][1]),
-                                int(lottery_info[2][0]), int(lottery_info[2][1]), int(lottery_info[3][0]), int(lottery_info[3][1]),
-                                int(lottery_info[4][0]), int(lottery_info[4][1]),
-                                int(lottery_info[5][0]), int(lottery_info[5][1]), carry_over, int(lottery_info[6][1]),
-                                datetime.now(), datetime.now())
-        print("carryover overflow data " + str(carry_over))
-    db.xact()
 
     '''
     get_lotteries = db.prepare("SELECT created_at FROM seven_lotteries WHERE times = $1")
