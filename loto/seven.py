@@ -9,8 +9,6 @@ import sys
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-# url = 'http://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt6-201603.html'
-# url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201609.html'
 # url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201712.html'
 url = 'https://www.mizuhobank.co.jp/takarakuji/loto/loto7/index.html'
 
@@ -110,7 +108,7 @@ for i, table in enumerate(type_tk):
 
     db = postgresql.open(conn_str)
 
-    get_lotteries = db.prepare("SELECT created_at FROM seven_lotteries WHERE times = $1")
+    get_lotteries = db.prepare("SELECT created_at FROM seven_lotteries WHERE times > $1")
 
     with db.xact():
         cnt = 0
