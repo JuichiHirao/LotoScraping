@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 
 # url = 'http://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt6-201603.html'
 # url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201609.html'
-# url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201710.html'
+# url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201712.html'
 url = 'https://www.mizuhobank.co.jp/takarakuji/loto/loto7/index.html'
 
 

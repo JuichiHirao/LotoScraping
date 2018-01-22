@@ -1,12 +1,15 @@
 # coding: utf-8
 
 import urllib.request
+from datetime import datetime
+
+import decimal
 import postgresql
 import re
 import sys
 from bs4 import BeautifulSoup
 
-# url = 'http://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt6-201603.html'
+# url = 'http://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt6-201712.html'
 url = 'https://www.mizuhobank.co.jp/takarakuji/loto/loto6/index.html'
 
 
@@ -68,11 +71,12 @@ for i, table in enumerate(type_tk):
             lottery_info.append(one_info)
             one_info = ["", ""]
 
+    carry_over = decimal.Decimal(lottery_info[5][0])
     print(lottery_info)
 
     db = postgresql.open(conn_str)
 
-    get_lotteries = db.prepare("SELECT created_at FROM lotteries WHERE times > $1")
+    get_lotteries = db.prepare("SELECT created_at FROM lotteries WHERE times = $1")
 
     with db.xact():
         cnt = 0
@@ -98,8 +102,12 @@ for i, table in enumerate(type_tk):
                 + ", $12, $13, $14, $15 " \
                 + ", $16, $17);"
 
-            #make_lotteries = db.prepare(sql)
-            #make_lotteries(lotteries_date, times, )
+            make_lotteries = db.prepare(sql)
+            make_lotteries(datetime.strptime(lotteries_date, '%Y/%m/%d'), int(times), ",".join(lottery_num),
+                             int(lottery_info[0][0]), int(lottery_info[0][1]), int(lottery_info[1][0]), int(lottery_info[1][1]),
+                             int(lottery_info[2][0]), int(lottery_info[2][1]), int(lottery_info[3][0]), int(lottery_info[3][1]),
+                             int(lottery_info[4][0]), int(lottery_info[4][1]), carry_over, int(lottery_info[5][1]),
+                             datetime.now(), datetime.now())
 
 '''
 0 <td class="alnRight" colspan="3">3口</td>
