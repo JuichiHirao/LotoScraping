@@ -108,7 +108,7 @@ for i, table in enumerate(type_tk):
 
     db = postgresql.open(conn_str)
 
-    get_lotteries = db.prepare("SELECT created_at FROM seven_lotteries WHERE times > $1")
+    get_lotteries = db.prepare("SELECT created_at FROM seven_lotteries WHERE times = $1")
 
     with db.xact():
         cnt = 0

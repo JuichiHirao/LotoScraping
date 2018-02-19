@@ -9,7 +9,7 @@ import re
 import sys
 from bs4 import BeautifulSoup
 
-# url = 'http://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt6-201712.html'
+# url = 'http://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt6-201802.html'
 url = 'https://www.mizuhobank.co.jp/takarakuji/loto/loto6/index.html'
 
 
