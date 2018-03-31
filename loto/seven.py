@@ -9,8 +9,8 @@ import sys
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-# url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201712.html'
-url = 'https://www.mizuhobank.co.jp/takarakuji/loto/loto7/index.html'
+# url = 'https://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt7-201802.html'
+url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto7/index.html'
 
 
 with urllib.request.urlopen(url) as response:
@@ -38,6 +38,8 @@ for i, table in enumerate(type_tk):
         # times = re.sub(u"第回", "", times_html)
         times = re.sub(u'(第|回)', "", time.text)
         print(str(times) + " [" + time.text + "]")
+
+    print("times " + str(times_html))
 
     date_jp_html = table.find_all('td', class_="alnCenter", colspan="7")
     for dt in date_jp_html:
