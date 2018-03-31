@@ -23,3 +23,10 @@ print(site_loto.max_time)
 db_loto = db.Loto(args[1], args[2], args[3], args[4], "lotteries")
 print(db_loto.max_time)
 
+for idx in range(db_loto.max_time+1, site_loto.max_time):
+    num = '%04d' % idx
+
+    url = base_url + num + ".CSV"
+    # print(url)
+
+    site_loto.parse(url)
