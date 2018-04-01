@@ -54,6 +54,8 @@ class Loto:
 
         self.max_time = int(times)
 
+        os.remove(filename)
+
     def parse(self, url, times):
 
         # 第1264回ロト６,数字選択式全国自治宝くじ,平成30年3月29日,東京 宝くじドリーム館
@@ -115,6 +117,8 @@ class Loto:
                 str_date = self.get_seireki(re.sub(r'(年|月)', "/", row[2]).replace("日", ""))
                 datetime.strptime(str_date, '%Y/%m/%d')
                 self.data.lottery_date = str_date
+
+        os.remove(filename)
 
     def get_seireki(self, str_wareki):
         if str_wareki.find("平成29") == 0:
