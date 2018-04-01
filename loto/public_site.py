@@ -23,6 +23,8 @@ class LotoData:
         self.four_amount = 0
         self.five_unit = 0
         self.five_amount = 0
+        self.six_unit = 0
+        self.six_amount = 0
         self.carryover = 0
         self.sales = 0
 
@@ -93,12 +95,20 @@ class Loto:
             if head.find('５等') == 0:
                 self.data.five_unit = int(row[1].replace("該当なし", "0").replace("口", ""))
                 self.data.five_amount = int(row[2].replace("該当なし", "0").replace("円", ""))
+            if head.find('６等') == 0:
+                self.data.six_unit = int(row[1].replace("該当なし", "0").replace("口", ""))
+                self.data.six_amount = int(row[2].replace("該当なし", "0").replace("円", ""))
             if head.find('キャリーオーバー') == 0:
                 self.data.carryover = int(row[1].replace("円", ""))
             if head.find('本数字') == 0:
-                # 本数字,01,06,27,33,35,43,ボーナス数字,15
-                self.data.num_set = row[1] + "," + row[2] + "," + row[3] + "," + row[4] + "," + row[5] + "," + row[6]\
-                                        + "," + row[8]
+                if len(row) == 9:
+                    # 本数字,01,06,27,33,35,43,ボーナス数字,15
+                    self.data.num_set = row[1] + "," + row[2] + "," + row[3] + "," + row[4] + "," + row[5]\
+                                        + "," + row[6] + "," + row[8]
+                else:
+                    # 本数字,01,06,27,33,35,43,ボーナス数字,15
+                    self.data.num_set = row[1] + "," + row[2] + "," + row[3] + "," + row[4] + "," + row[5]\
+                                        + "," + row[6] + "," + row[7] + "," + row[9]
             if head.find('販売実績額') == 0:
                 self.data.sales = int(row[1].replace("円", ""))
             if head.find('第') == 0:
