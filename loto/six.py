@@ -10,12 +10,14 @@ import sys
 from bs4 import BeautifulSoup
 
 # url = 'http://www.mizuhobank.co.jp/takarakuji/loto/backnumber/lt6-201802.html'
-url = 'https://www.mizuhobank.co.jp/takarakuji/loto/loto6/index.html'
+url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/index.html'
+# https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/index.html
 
 
 with urllib.request.urlopen(url) as response:
     html = response.read()
 
+print(html)
 html_soup = BeautifulSoup(html, "html.parser")
 
 type_tk = html_soup.find_all('table', class_="typeTK")
@@ -32,14 +34,14 @@ conn_str = 'pq://' + argv_user + ':' + argv_password + '@' + argv_hostname + ':5
 for i, table in enumerate(type_tk):
     print(str(i+1) + "件")
 
-    times_html = table.find_all('th', class_="alnCenter bgf7f7f7")
+    times_html = table.find_all('th', class_="alnCenter bgf7f7f7 js-lottery-issue-pc")
     for time in times_html:
         # times = time.text.replace(u"第", "").replace(u"回", "")
         # times = re.sub(u"第回", "", times_html)
         times = re.sub(u'(第|回)', "", time.text)
         print(str(times) + " [" + time.text + "]")
 
-    date_jp_html = table.find_all('td', class_="alnCenter", colspan="6")
+    date_jp_html = table.find_all('td', class_="alnCenter js-lottery-date-pc", colspan="6")
     for dt in date_jp_html:
         lotteries_date = re.sub(r'(年|月)', "/", dt.text).replace("日", "")
         print(lotteries_date + " [" + dt.text + "]")
