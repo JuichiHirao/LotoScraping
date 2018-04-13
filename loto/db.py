@@ -17,6 +17,39 @@ class Loto:
         for row in max_time():
             self.max_time = int(row[0])
 
+    def __init__(self, user, password, hostname, dbname):
+        self.max_time = 0
+
+        conn_str = 'pq://' + user + ':' + password + '@' + hostname + ':5432/' + dbname
+
+        self.db = postgresql.open(conn_str)
+
+    def buy_export(self, data):
+
+        exist_buy = self.db.prepare("SELECT created_at FROM buy WHERE buy_date = $1 AND num_set = $2")
+        cnt = 0
+        for row in exist_buy(data.buy_date, data.num_set):
+            cnt += 1
+
+        if cnt > 0:
+            print("DATABASE EXIST " + str(data.times) + " [" + str(row["created_at"]) + "]")
+            return
+
+        sql = "INSERT INTO buy ( " \
+            + "buy_date, num_set " \
+            + ", created_at, updated_at " \
+            + ") " \
+            + "VALUES (" \
+            + " $1, $2 " \
+            + ", $3, $4)"
+
+        with self.db.xact():
+            make_buy = self.db.prepare(sql)
+
+            make_buy(data.buy_date, data.num_set, datetime.now(), datetime.now())
+
+        print("buy export " + str(data.times))
+
     def export(self, data):
 
         get_lotteries = self.db.prepare("SELECT created_at FROM lotteries WHERE times = $1")
