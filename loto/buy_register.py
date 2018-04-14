@@ -47,51 +47,55 @@ class BuyData:
 class BuyDetailData:
 
     def __init__(self):
+        self.id = 0
         self.buy_date = datetime.now()
         self.num_set = ''
         self.times = 0
         self.winning = 0
 
+        return
 
-args = sys.argv
 
-db_loto = db.Loto(args[1], args[2], args[3], args[4])
+def main():
+    args = sys.argv
 
-csv_file = open("loto/test_data", "r", errors="", newline="")
+    db_loto = db.Loto(args[1], args[2], args[3], args[4])
 
-f = csv.reader(csv_file, delimiter=" ", skipinitialspace=True)
+    csv_file = open("loto/test_data", "r", errors="", newline="")
 
-arr_data = []
-data = BuyData()
-parse = LineParse()
-for row in f:
-    if len(row) <= 0:
-        continue
-    if re.match("[0-9]*/[0-9]*", row[0]):
-        # print("date " + row[0])
-        if len(data.arr_buy_date) > 0:
-            arr_data.append(data)
-        data = BuyData()
-        data.arr_buy_date = parse.get_array_date(row)
-    elif re.match("[2][0][0-9][0-9]", row[0]):
-        print("year " + row[0])
-    elif re.match("[0-4][0-9]", row[0]):
-        # print("num_set " + row[0])
-        data.arr_num_set.append(parse.get_array_num_set(row))
-    else:
-        print("no match data" + row[0])
+    f = csv.reader(csv_file, delimiter=" ", skipinitialspace=True)
 
-if len(data.arr_buy_date) > 0:
-    arr_data.append(data)
+    arr_data = []
+    data = BuyData()
+    parse = LineParse()
+    for row in f:
+        if len(row) <= 0:
+            continue
+        if re.match("[0-9]*/[0-9]*", row[0]):
+            # print("date " + row[0])
+            if len(data.arr_buy_date) > 0:
+                arr_data.append(data)
+            data = BuyData()
+            data.arr_buy_date = parse.get_array_date(row)
+        elif re.match("[2][0][0-9][0-9]", row[0]):
+            print("year " + row[0])
+        elif re.match("[0-4][0-9]", row[0]):
+            # print("num_set " + row[0])
+            data.arr_num_set.append(parse.get_array_num_set(row))
+        else:
+            print("no match data" + row[0])
 
-for data in arr_data:
-    data.parse()
-    for detail in data.arr_buy_detail:
-        db_loto.buy_export(detail)
+    if len(data.arr_buy_date) > 0:
+        arr_data.append(data)
 
-    #for buy_date in data.arr_buy_date:
-    #    print(str(buy_date))
-    #for num_set in data.arr_num_set:
-    #    print(num_set)
+    for data in arr_data:
+        data.parse()
+        for detail in data.arr_buy_detail:
+            db_loto.buy_export(detail)
+
+        #for buy_date in data.arr_buy_date:
+        #    print(str(buy_date))
+        #for num_set in data.arr_num_set:
+        #    print(num_set)
 
 

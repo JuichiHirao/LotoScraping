@@ -5,24 +5,18 @@ from datetime import datetime
 
 class Loto:
 
-    def __init__(self, user, password, hostname, dbname, table_name):
-        self.max_time = 0
-        self.table_name = table_name
-
-        conn_str = 'pq://' + user + ':' + password + '@' + hostname + ':5432/' + dbname
-
-        self.db = postgresql.open(conn_str)
-
-        max_time = self.db.prepare("SELECT max(times) FROM " + table_name)
-        for row in max_time():
-            self.max_time = int(row[0])
-
-    def __init__(self, user, password, hostname, dbname):
+    def __init__(self, user, password, hostname, dbname, table_name=''):
         self.max_time = 0
 
         conn_str = 'pq://' + user + ':' + password + '@' + hostname + ':5432/' + dbname
-
         self.db = postgresql.open(conn_str)
+
+        # テーブル名が指定されていた場合は取得済みの回数を設定
+        if len(table_name) > 0:
+            self.table_name = table_name
+            max_time = self.db.prepare("SELECT max(times) FROM " + table_name)
+            for row in max_time():
+                self.max_time = int(row[0])
 
     def buy_export(self, data):
 
