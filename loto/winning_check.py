@@ -14,57 +14,76 @@ argv_dbname = argvs[4]
 
 class WinningCheck:
 
-    def __init__(self, argv_user, argv_password, argv_hostname, argv_dbname):
+    def __init__(self, argv_user, argv_password, argv_hostname, argv_dbname, str_target_date):
         conn_str = 'pq://' + argv_user + ':' + argv_password + '@' + argv_hostname + ':5432/' + argv_dbname
         self.db = postgresql.open(conn_str)
+        try:
+            self.target_date = datetime.strptime(str_target_date, '%Y/%m/%d')
+        except ValueError as e:
+            print("paramter invalid. can not date format [" + str_target_date + "]")
+            self.target_date = datetime(1900, 1, 1)
+            return
 
     def main(self):
 
-        target_date = datetime.strptime(argvs[5], '%Y/%m/%d')
-        print(target_date)
-        get_target_buy = self.db.prepare("SELECT buy_date, times, num_set FROM buy WHERE buy_date = $1 ORDER BY times")
+        get_lotteries = self.db.prepare("SELECT times, lottery_date, num_set FROM lotteries WHERE lottery_date = $1 ORDER BY times")
+
+        str_lottery_numset = ""
+        for row in get_lotteries(self.target_date):
+            str_lottery_numset = row["num_set"]
+
+        if len(str_lottery_numset) <= 0:
+            print("not lottery")
+            return
+
+        print(datetime.strftime(self.target_date, '%Y/%m/%d') + ' ' + str_lottery_numset)
+        get_target_buy = self.db.prepare("SELECT id, buy_date, times, num_set FROM buy WHERE buy_date = $1 ORDER BY times")
 
         arr_detail = []
 
-        for row in get_target_buy(target_date):
+        for row in get_target_buy(self.target_date):
             detail = buy_register.BuyDetailData()
-            detail.buy_date = row[0]
-            detail.times = row[1]
-            detail.num_set = row[2]
+            detail.id = row[0]
+            detail.buy_date = row[1]
+            detail.times = row[2]
+            detail.num_set = row[3]
 
             arr_detail.append(detail)
 
-        get_lotteries = self.db.prepare("SELECT times, lottery_date, num_set FROM lotteries WHERE lottery_date = $1 ORDER BY times")
-        target_numset = arr_detail[0].num_set.split(",")
-        print(target_numset)
+        for detail in arr_detail:
+                # print(str(row))
 
-        for row in get_lotteries(target_date):
-            print(str(row))
-            arr_num = row["num_set"].split(',')
-            num = arr_num[0:6]
-            result = set(num) & set(target_numset)
-            bonus = arr_num[6:7]
-            bonus_result = set(target_numset) & set(bonus)
+                self.check_six(str_lottery_numset, detail)
 
-            res_len = len(result)
-            if res_len == 3 and len(bonus_result) <= 0:
-                print("winning 6 " + str(row["lottery_date"]) + " " + str(row["times"]) + " " + str(res_len) + " " + str(result))
-            if res_len == 3 and len(bonus_result) == 1:
-                print("winning 5 " + str(row["lottery_date"]) + " " + str(row["times"]) + " " + str(res_len) + " " + str(result) + str(bonus_result))
-            if res_len == 4:
-                print("winning 4 " + str(row["lottery_date"]) + " " + str(row["times"]) + " " + str(res_len) + " " + str(result))
-            if res_len == 5 and len(bonus_result) <= 0:
-                print("winning 3 " + str(row["lottery_date"]) + " " + str(row["times"]) + " " + str(res_len) + " " + str(result))
-            if res_len == 5 and len(bonus_result) == 1:
-                print("winning 2 " + str(row["lottery_date"]) + " " + str(row["times"]) + " " + str(res_len) + " " + str(result) + str(bonus_result))
-            if res_len == 6:
-                print("winning 1 " + str(row["lottery_date"]) + " " + str(row["times"]) + " " + str(res_len) + " " + str(result))
-            if res_len < 3:
-                print("lose " + str(row["lottery_date"]) + " " + str(row["times"]) + " " + str(res_len) + " " + str(result))
+    def check_six(self, lottery_numset, detail):
+
+        arr_lottery = lottery_numset.split(',')
+        arr_target = detail.num_set.split(',')
+        result = set(arr_lottery) & set(arr_target)
+        bonus = arr_lottery[6:7]
+        bonus_result = set(arr_target) & set(bonus)
+
+        res_len = len(result)
+        if res_len == 3 and len(bonus_result) <= 0:
+            print("  winning 6 " + str(len(result)) + " " + str(detail.num_set))
+        if res_len == 3 and len(bonus_result) == 1:
+            print("  winning 5 " + str(len(result)) + " " + str(detail.num_set))
+        if res_len == 4:
+            print("  winning 4 " + str(len(result)) + " " + str(detail.num_set))
+        if res_len == 5 and len(bonus_result) <= 0:
+            print("  winning 3 " + str(len(result)) + " " + str(detail.num_set))
+        if res_len == 5 and len(bonus_result) == 1:
+            print("  winning 2 " + str(len(result)) + " " + str(detail.num_set))
+        if res_len == 6:
+            print("  winning 1 " + str(len(result)) + " " + str(detail.num_set))
+        if res_len < 3:
+            print("  lose match" + str(len(result)) + " " + str(detail.num_set))
 
 
 if __name__ == '__main__':
-    check = WinningCheck(argv_user, argv_password, argv_hostname, argv_dbname)
-    check.main()
+    check = WinningCheck(argv_user, argv_password, argv_hostname, argv_dbname, argvs[5])
 
-exit(0)
+    if check.target_date.year == 1900:
+        exit(-1)
+
+    check.main()
