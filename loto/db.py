@@ -20,9 +20,9 @@ class Loto:
 
     def buy_export(self, data):
 
-        exist_buy = self.db.prepare("SELECT created_at FROM buy WHERE buy_date = $1 AND num_set = $2")
+        exist_buy = self.db.prepare("SELECT created_at FROM buy WHERE target_date = $1 AND num_set = $2")
         cnt = 0
-        for row in exist_buy(data.buy_date, data.num_set):
+        for row in exist_buy(data.target_date, data.num_set):
             cnt += 1
 
         if cnt > 0:
@@ -30,7 +30,7 @@ class Loto:
             return
 
         sql = "INSERT INTO buy ( " \
-            + "buy_date, num_set " \
+            + "target_date, num_set " \
             + ", created_at, updated_at " \
             + ") " \
             + "VALUES (" \
@@ -40,7 +40,7 @@ class Loto:
         with self.db.xact():
             make_buy = self.db.prepare(sql)
 
-            make_buy(data.buy_date, data.num_set, datetime.now(), datetime.now())
+            make_buy(data.target_date, data.num_set, datetime.now(), datetime.now())
 
         print("buy export " + str(data.times))
 

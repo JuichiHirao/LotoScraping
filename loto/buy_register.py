@@ -29,18 +29,18 @@ class LineParse:
 class BuyData:
 
     def __init__(self):
-        self.arr_buy_date = []
+        self.arr_target_date = []
         self.arr_num_set = []
         self.arr_buy_detail = []
 
     def parse(self):
         detail = BuyDetailData()
-        for buy_date in self.arr_buy_date:
+        for target_date in self.arr_target_date:
             for num_set in self.arr_num_set:
                 detail = BuyDetailData()
-                detail.buy_date = buy_date
+                detail.target_date = target_date
                 detail.num_set = num_set
-                #print(str(detail.buy_date) + ' ' + str(detail.num_set))
+                #print(str(detail.target_date) + ' ' + str(detail.num_set))
                 self.arr_buy_detail.append(detail)
 
 
@@ -48,7 +48,7 @@ class BuyDetailData:
 
     def __init__(self):
         self.id = 0
-        self.buy_date = datetime.now()
+        self.target_date = datetime.now()
         self.num_set = ''
         self.times = 0
         self.winning = 0
@@ -73,10 +73,10 @@ def main():
             continue
         if re.match("[0-9]*/[0-9]*", row[0]):
             # print("date " + row[0])
-            if len(data.arr_buy_date) > 0:
+            if len(data.arr_target_date) > 0:
                 arr_data.append(data)
             data = BuyData()
-            data.arr_buy_date = parse.get_array_date(row)
+            data.arr_target_date = parse.get_array_date(row)
         elif re.match("[2][0][0-9][0-9]", row[0]):
             print("year " + row[0])
         elif re.match("[0-4][0-9]", row[0]):
@@ -85,7 +85,7 @@ def main():
         else:
             print("no match data" + row[0])
 
-    if len(data.arr_buy_date) > 0:
+    if len(data.arr_target_date) > 0:
         arr_data.append(data)
 
     for data in arr_data:
@@ -93,9 +93,6 @@ def main():
         for detail in data.arr_buy_detail:
             db_loto.buy_export(detail)
 
-        #for buy_date in data.arr_buy_date:
-        #    print(str(buy_date))
-        #for num_set in data.arr_num_set:
-        #    print(num_set)
-
+if __name__ == '__main__':
+    main()
 
