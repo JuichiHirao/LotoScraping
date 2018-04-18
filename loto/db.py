@@ -30,19 +30,19 @@ class Loto:
             return
 
         sql = "INSERT INTO buy ( " \
-            + "target_date, num_set " \
+            + "target_date, num_set, kind " \
             + ", created_at, updated_at " \
             + ") " \
             + "VALUES (" \
-            + " $1, $2 " \
-            + ", $3, $4)"
+            + " $1, $2, $3 " \
+            + ", $4, $5)"
 
         with self.db.xact():
             make_buy = self.db.prepare(sql)
 
-            make_buy(data.target_date, data.num_set, datetime.now(), datetime.now())
+            make_buy(data.target_date, data.num_set, data.kind, datetime.now(), datetime.now())
 
-        print("buy export " + str(data.times))
+        print("buy export " + str(data.target_date))
 
     def export(self, data):
 
