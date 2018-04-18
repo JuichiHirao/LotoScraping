@@ -3,7 +3,6 @@
 import re
 import csv
 import sys
-import postgresql
 from loto import db
 from datetime import datetime
 
@@ -16,6 +15,11 @@ class LineParse:
 
         arr_date = []
         for mon_day in array_date:
+            if re.match("[2][0][0-9][0-9]", mon_day):
+                # print("year " + row[0])
+                self.year = int(mon_day)
+                continue
+
             str_date = str(self.year) + '/' + mon_day
             arr_date.append(datetime.strptime(str_date, '%Y/%m/%d'))
 
@@ -23,7 +27,7 @@ class LineParse:
 
     def get_array_num_set(self, num_set):
 
-        return ",".join(num_set);
+        return ",".join(num_set)
 
 
 class BuyData:
@@ -34,13 +38,13 @@ class BuyData:
         self.arr_buy_detail = []
 
     def parse(self):
-        detail = BuyDetailData()
         for target_date in self.arr_target_date:
             for num_set in self.arr_num_set:
                 detail = BuyDetailData()
                 detail.target_date = target_date
                 detail.num_set = num_set
-                #print(str(detail.target_date) + ' ' + str(detail.num_set))
+                detail.kind = len(detail.num_set.split(","))
+
                 self.arr_buy_detail.append(detail)
 
 
@@ -52,6 +56,7 @@ class BuyDetailData:
         self.num_set = ''
         self.times = 0
         self.winning = 0
+        self.kind = 0
 
         return
 
@@ -71,14 +76,11 @@ def main():
     for row in f:
         if len(row) <= 0:
             continue
-        if re.match("[0-9]*/[0-9]*", row[0]):
-            # print("date " + row[0])
+        if re.match("[0-9]*/[0-9]*", row[0]) or re.match("[2][0][0-9][0-9]", row[0]):
             if len(data.arr_target_date) > 0:
                 arr_data.append(data)
             data = BuyData()
             data.arr_target_date = parse.get_array_date(row)
-        elif re.match("[2][0][0-9][0-9]", row[0]):
-            print("year " + row[0])
         elif re.match("[0-4][0-9]", row[0]):
             # print("num_set " + row[0])
             data.arr_num_set.append(parse.get_array_num_set(row))
@@ -92,6 +94,7 @@ def main():
         data.parse()
         for detail in data.arr_buy_detail:
             db_loto.buy_export(detail)
+
 
 if __name__ == '__main__':
     main()
