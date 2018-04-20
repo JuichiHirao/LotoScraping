@@ -20,7 +20,7 @@ site_loto.set_max_time(check_url, "A52")
 print(site_loto.max_time)
 
 # postgresqlの最新の回数を取得
-db_loto = db.Loto(args[1], args[2], args[3], args[4], "lotteries")
+db_loto = db.Loto("lotteries")
 print(db_loto.max_time)
 
 for idx in range(db_loto.max_time+1, site_loto.max_time+1):
