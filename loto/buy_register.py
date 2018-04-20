@@ -64,7 +64,7 @@ class BuyDetailData:
 def main():
     args = sys.argv
 
-    db_loto = db.Loto(args[1], args[2], args[3], args[4])
+    db_loto = db.Loto()
 
     csv_file = open("loto/test_data", "r", errors="", newline="")
 

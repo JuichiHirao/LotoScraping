@@ -1,15 +1,20 @@
 # coding: utf-8
 import postgresql
+import yaml
 from datetime import datetime
 
 
 class Loto:
 
-    def __init__(self, user, password, hostname, dbname, table_name=''):
+    # def __init__(self, user, password, hostname, dbname, table_name=''):
+    def __init__(self, table_name=''):
         self.max_time = 0
+        self.user = ''
+        self.password = ''
+        self.hostname = ''
+        self.dbname = ''
 
-        conn_str = 'pq://' + user + ':' + password + '@' + hostname + ':5432/' + dbname
-        self.db = postgresql.open(conn_str)
+        self.db = self.get_conn()
 
         # テーブル名が指定されていた場合は取得済みの回数を設定
         if len(table_name) > 0:
@@ -17,6 +22,17 @@ class Loto:
             max_time = self.db.prepare("SELECT max(times) FROM " + table_name)
             for row in max_time():
                 self.max_time = int(row[0])
+
+    def get_conn(self):
+        with open('credentials.yml') as file:
+            obj = yaml.load(file)
+            self.user = obj['user']
+            self.password = obj['password']
+            self.hostname = obj['hostname']
+            self.dbname = obj['dbname']
+
+        conn_str = 'pq://' + self.user + ':' + self.password + '@' + self.hostname + ':5432/' + self.dbname
+        return postgresql.open(conn_str)
 
     def buy_export(self, data):
 
@@ -88,7 +104,7 @@ class Loto:
             cnt += 1
 
         if cnt > 0:
-            print("DATABASE EXIST " + data.times + " [" + str(row["created_at"]) + "]")
+            print("DATABASE EXIST " + str(data.times) + " [" + str(row["created_at"]) + "]")
             return
 
         sql = "INSERT INTO seven_lotteries( " \

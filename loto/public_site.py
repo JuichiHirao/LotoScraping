@@ -110,10 +110,11 @@ class Loto:
                 else:
                     # 本数字,01,06,27,33,35,43,ボーナス数字,15
                     self.data.num_set = row[1] + "," + row[2] + "," + row[3] + "," + row[4] + "," + row[5]\
-                                        + "," + row[6] + "," + row[7] + "," + row[9]
+                                        + "," + row[6] + "," + row[7] + "," + row[9] + "," + row[10]
             if head.find('販売実績額') == 0:
                 self.data.sales = int(row[1].replace("円", ""))
             if head.find('第') == 0:
+                print(row[2])
                 str_date = self.get_seireki(re.sub(r'(年|月)', "/", row[2]).replace("日", ""))
                 datetime.strptime(str_date, '%Y/%m/%d')
                 self.data.lottery_date = str_date
@@ -121,6 +122,14 @@ class Loto:
         os.remove(filename)
 
     def get_seireki(self, str_wareki):
+        if str_wareki.find("平成25") == 0:
+            return str_wareki.replace("平成25", "2013")
+        if str_wareki.find("平成26") == 0:
+            return str_wareki.replace("平成26", "2014")
+        if str_wareki.find("平成27") == 0:
+            return str_wareki.replace("平成27", "2015")
+        if str_wareki.find("平成28") == 0:
+            return str_wareki.replace("平成28", "2016")
         if str_wareki.find("平成29") == 0:
             return str_wareki.replace("平成29", "2017")
         if str_wareki.find("平成30") == 0:

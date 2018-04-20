@@ -1,23 +1,17 @@
 # coding: utf-8
 
 import sys
-import postgresql
 from loto import buy_register
+from loto import db
 from datetime import datetime
-
-argvs = sys.argv
-argv_user = argvs[1]
-argv_password = argvs[2]
-argv_hostname = argvs[3]
-argv_dbname = argvs[4]
-
 
 class WinningCheck:
 
-    def __init__(self, argv_user, argv_password, argv_hostname, argv_dbname, str_target_date):
-        conn_str = 'pq://' + argv_user + ':' + argv_password + '@' + argv_hostname + ':5432/' + argv_dbname
+    def __init__(self, str_target_date):
         self.times = 0
-        self.db = postgresql.open(conn_str)
+        db_loto = db.Loto()
+        self.db = db_loto.get_conn()
+
         try:
             self.target_date = datetime.strptime(str_target_date, '%Y/%m/%d')
         except ValueError as e:
@@ -27,7 +21,16 @@ class WinningCheck:
 
     def main(self):
 
-        get_lotteries = self.db.prepare("SELECT times, lottery_date, num_set FROM lotteries WHERE lottery_date = $1 ORDER BY times")
+        weekday = self.target_date.weekday()
+
+        if weekday == 0 or weekday == 3:
+            table_name = "lotteries"
+        else:
+            table_name = "seven_lotteries"
+
+        print(table_name)
+        get_lotteries = self.db.prepare("SELECT times, lottery_date, num_set FROM "
+                                        + table_name + " WHERE lottery_date = $1 ORDER BY times")
 
         str_lottery_numset = ""
         for row in get_lotteries(self.target_date):
@@ -61,7 +64,10 @@ class WinningCheck:
                     print("  checked winning 6 " + str(detail.winning) + " " + str(detail.num_set))
                 continue
 
-            detail.winning = self.check_six(str_lottery_numset, detail)
+            if detail.kind == 6:
+                detail.winning = self.check_six(str_lottery_numset, detail)
+            else:
+                detail.winning = self.check_seven(str_lottery_numset, detail)
             detail.times = self.times
 
             sql = "UPDATE buy " \
@@ -110,39 +116,40 @@ class WinningCheck:
 
         arr_lottery = lottery_numset.split(',')
         arr_target = detail.num_set.split(',')
-        arr_lottery_six = arr_lottery[0:6]
-        result = set(arr_lottery_six) & set(arr_target)
-        bonus = arr_lottery[6:8]
+        arr_lottery_seven = arr_lottery[0:7]
+        result = set(arr_lottery_seven) & set(arr_target)
+        bonus = arr_lottery[7:9]
         bonus_result = set(arr_target) & set(bonus)
         result_winning = 0
 
         res_len = len(result)
-        if res_len == 3 and len(bonus_result) <= 0:
+        if res_len == 3 and len(bonus_result) > 0:
             print("  winning 6 " + str(len(result)) + " " + str(detail.num_set))
             result_winning = 6
-        if res_len == 3 and len(bonus_result) > 0:
+        if res_len == 4:
             print("  winning 5 " + str(len(result)) + " " + str(detail.num_set))
             result_winning = 5
-        if res_len == 4:
+        if res_len == 5:
             print("  winning 4 " + str(len(result)) + " " + str(detail.num_set))
             result_winning = 4
-        if res_len == 5 and len(bonus_result) <= 0:
+        if res_len == 6 and len(bonus_result) <= 0:
             print("  winning 3 " + str(len(result)) + " " + str(detail.num_set))
             result_winning = 3
-        if res_len == 5 and len(bonus_result) > 0:
+        if res_len == 6 and len(bonus_result) > 0:
             print("  winning 2 " + str(len(result)) + " " + str(detail.num_set))
             result_winning = 2
-        if res_len == 6:
+        if res_len == 7:
             print("  winning 1 " + str(len(result)) + " " + str(detail.num_set))
             result_winning = 1
-        if res_len < 3:
+        if result_winning == 0:
             print("  lose match" + str(len(result)) + " " + str(detail.num_set))
 
         return result_winning
 
 
 if __name__ == '__main__':
-    check = WinningCheck(argv_user, argv_password, argv_hostname, argv_dbname, argvs[5])
+    argvs = sys.argv
+    check = WinningCheck(argvs[1])
 
     if check.target_date.year == 1900:
         exit(-1)
