@@ -42,7 +42,7 @@ class WinningCheck:
             return
 
         print(datetime.strftime(self.target_date, '%Y/%m/%d') + ' ' + str_lottery_numset)
-        get_target_buy = self.db.prepare("SELECT id, target_date, times, num_set FROM buy WHERE target_date = $1 ORDER BY times")
+        get_target_buy = self.db.prepare("SELECT id, target_date, times, kind, num_set FROM buy WHERE target_date = $1 ORDER BY times")
 
         arr_detail = []
 
@@ -51,7 +51,8 @@ class WinningCheck:
             detail.id = row[0]
             detail.target_date = row[1]
             detail.times = row[2]
-            detail.num_set = row[3]
+            detail.kind = row[3]
+            detail.num_set = row[4]
 
             arr_detail.append(detail)
 
