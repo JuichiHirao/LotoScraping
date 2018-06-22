@@ -23,11 +23,28 @@ print(site_loto.max_time)
 db_loto = db.Loto("lotteries")
 print(db_loto.max_time)
 
-for idx in range(db_loto.max_time+1, site_loto.max_time+1):
+if len(args) == 2:
+    start = int(args[1])
+    end = start + 1
+elif len(args) > 2:
+    start = int(args[1])
+    end = int(args[2])
+else:
+    start = db_loto.max_time + 1
+    end = site_loto.max_time + 1
+
+print("start " + str(start) + "  end " + str(end))
+
+# for idx in range(db_loto.max_time+1, site_loto.max_time+1):
+for idx in range(start, end):
     num = '%04d' % idx
 
     url = base_url + num + ".CSV"
 
     site_loto.parse(url, idx)
+
+    if site_loto.data.times == 0:
+        continue
+
     db_loto.export(site_loto.data)
     #print("data one_unit " + str(site_loto.data.one_amount))

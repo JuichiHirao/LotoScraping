@@ -122,6 +122,20 @@ class Loto:
         os.remove(filename)
 
     def get_seireki(self, str_wareki):
+        if str_wareki.find("平成18") == 0:
+            return str_wareki.replace("平成18", "2006")
+        if str_wareki.find("平成19") == 0:
+            return str_wareki.replace("平成19", "2007")
+        if str_wareki.find("平成20") == 0:
+            return str_wareki.replace("平成20", "2008")
+        if str_wareki.find("平成21") == 0:
+            return str_wareki.replace("平成21", "2009")
+        if str_wareki.find("平成22") == 0:
+            return str_wareki.replace("平成22", "2010")
+        if str_wareki.find("平成23") == 0:
+            return str_wareki.replace("平成23", "2011")
+        if str_wareki.find("平成24") == 0:
+            return str_wareki.replace("平成24", "2012")
         if str_wareki.find("平成25") == 0:
             return str_wareki.replace("平成25", "2013")
         if str_wareki.find("平成26") == 0:
