@@ -42,11 +42,11 @@ class Loto:
         csv_file = codecs.open(filename, 'r', 'shift_jis')
 
         for idx, line in enumerate(csv_file):
-            l = line[:-1]
+            l = line[:-1].strip()
             if l.find(continue_str) >= 0:
                 continue
 
-            times = re.sub(u'(第|回.*)', "", line[:-1])
+            times = re.sub(u'(第|回.*)', "", l)
             if len(times) > 0:
                 break
 
