@@ -4,10 +4,28 @@ import sys
 from loto import buy_register
 from loto import db
 from datetime import datetime
+from decimal import Decimal
+
+
+class NumberPrize:
+
+    def __init__(self, unit, amount):
+        self.unit = int(unit)
+        self.amount = int(amount)
+
+    def get_unit(self):
+
+        return "{:,d}".format(self.unit).rjust(8)
+
+    def get_amount(self):
+
+        return "{:,d}".format(self.amount).rjust(15)
+
 
 class WinningCheck:
 
     def __init__(self, str_target_date):
+
         self.times = 0
         db_loto = db.Loto()
         self.db = db_loto.get_conn()
@@ -29,13 +47,36 @@ class WinningCheck:
             table_name = "seven_lotteries"
 
         print(table_name)
-        get_lotteries = self.db.prepare("SELECT times, lottery_date, num_set FROM "
-                                        + table_name + " WHERE lottery_date = $1 ORDER BY times")
+        sql = 'SELECT times, lottery_date, num_set ' \
+              ' , one_unit, one_amount, two_unit, two_amount ' \
+              ' , three_unit, three_amount, four_unit, four_amount ' \
+              ' , five_unit, five_amount ' \
+              ' , sales, carryover ' \
+              ' FROM ' + table_name + ' ' \
+              ' WHERE lottery_date = $1 ORDER BY times'
+
+        # get_lotteries = self.db.prepare("SELECT times, lottery_date, num_set FROM "
+        #                                + table_name + " WHERE lottery_date = $1 ORDER BY times")
+        get_lotteries = self.db.prepare(sql)
 
         str_lottery_numset = ""
         for row in get_lotteries(self.target_date):
             str_lottery_numset = row["num_set"]
+            one = NumberPrize(row["one_unit"], row["one_amount"])
+            two = NumberPrize(row["two_unit"], row["two_amount"])
+            three = NumberPrize(row["three_unit"], row["three_amount"])
+            four = NumberPrize(row["four_unit"], row["four_amount"])
+            five = NumberPrize(row["five_unit"], row["five_amount"])
+            sales = row["sales"]
+            carryover = row["carryover"]
             self.times = int(row["times"])
+            print('1 ' + one.get_unit() + ' ' + one.get_amount())
+            print('2 ' + two.get_unit() + ' ' + two.get_amount())
+            print('3 ' + three.get_unit() + ' ' + three.get_amount())
+            print('4 ' + four.get_unit() + ' ' + four.get_amount())
+            print('5 ' + five.get_unit() + ' ' + five.get_amount())
+            print('sales ' + '{:,}'.format(Decimal(sales)))
+            print('carry ' + '{:,}'.format(Decimal(carryover)))
 
         if len(str_lottery_numset) <= 0:
             print("not lottery")
