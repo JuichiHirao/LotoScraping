@@ -9,7 +9,7 @@ from datetime import datetime
 
 class LineParse:
 
-    year = 2018
+    year = 2019
 
     def get_array_date(self, array_date):
 

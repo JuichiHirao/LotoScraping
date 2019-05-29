@@ -148,5 +148,9 @@ class Loto:
             return str_wareki.replace("平成29", "2017")
         if str_wareki.find("平成30") == 0:
             return str_wareki.replace("平成30", "2018")
+        if str_wareki.find("平成31") == 0:
+            return str_wareki.replace("平成31", "2019")
+        if str_wareki.find("令和1") == 0:
+            return str_wareki.replace("令和1", "2019")
         return ""
 

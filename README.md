@@ -58,3 +58,19 @@ PYTHONPATH=. python loto/seven_csv.py
 ```
 PYTHONPATH=. python loto/seven_csv.py
 ```
+
+```
+(venv) HIRAOnoMacBook-Pro:LotoScraping juichihirao$ pip freeze
+beautifulsoup4==4.7.0
+iso8601==0.1.12
+javcore==0.1.8
+mysql-connector-python==8.0.13
+protobuf==3.6.1
+py-postgresql==1.2.1
+PyYAML==3.13
+selenium==3.141.0
+six==1.12.0
+soupsieve==1.6.2
+urllib3==1.24.1
+(venv) HIRAOnoMacBook-Pro:LotoScraping juichihirao$ 
+```
