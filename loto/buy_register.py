@@ -9,7 +9,7 @@ from datetime import datetime
 
 class LineParse:
 
-    year = 2019
+    year = datetime.now().year
 
     def get_array_date(self, array_date):
 
@@ -17,7 +17,9 @@ class LineParse:
         for mon_day in array_date:
             if re.match("[2][0][0-9][0-9]", mon_day):
                 # print("year " + row[0])
-                self.year = int(mon_day)
+                new_year_date = datetime.strptime(mon_day, '%Y/%m/%d')
+                arr_date.append(new_year_date)
+                self.year = new_year_date.year
                 continue
 
             str_date = str(self.year) + '/' + mon_day

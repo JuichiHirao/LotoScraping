@@ -7,6 +7,7 @@ import sys
 
 # url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/index.html'
 url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/csv/A1021264.CSV'
+url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/csv/A1021414.CSV?1568515735489'
 
 check_url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/csv/loto6.csv'
 
@@ -39,6 +40,8 @@ print("start " + str(start) + "  end " + str(end))
 for idx in range(start, end):
     num = '%04d' % idx
 
+    # self.opener.addheaders = [('User-Agent',
+    #                            'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
     url = base_url + num + ".CSV"
 
     site_loto.parse(url, idx)
