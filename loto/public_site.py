@@ -36,6 +36,12 @@ class Loto:
     みずほ銀行の公式サイトで公開されている最新の回数を取得
     '''
     def set_max_time(self, check_url, continue_str):
+        opener = urllib.request.build_opener()
+        opener.addheaders = [('User-Agent',
+                                   'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
+
+        urllib.request.install_opener(opener)
+
         filename = os.path.basename(check_url)
         urllib.request.urlretrieve(check_url, filename)
 
@@ -152,5 +158,9 @@ class Loto:
             return str_wareki.replace("平成31", "2019")
         if str_wareki.find("令和1") == 0:
             return str_wareki.replace("令和1", "2019")
+        if str_wareki.find("令和2") == 0:
+            return str_wareki.replace("令和2", "2020")
+        if str_wareki.find("令和3") == 0:
+            return str_wareki.replace("令和3", "2021")
         return ""
 
