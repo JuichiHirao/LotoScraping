@@ -41,6 +41,7 @@ class WinningCheck:
 
         weekday = self.target_date.weekday()
 
+        # weekday 0 月曜日、3 木曜日
         if weekday == 0 or weekday == 3:
             table_name = "lotteries"
         else:
