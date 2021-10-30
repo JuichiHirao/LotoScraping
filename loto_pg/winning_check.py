@@ -1,8 +1,7 @@
 # coding: utf-8
 
 import sys
-from loto import buy_register
-from loto import db
+from loto_pg import db, buy_register
 from datetime import datetime
 from decimal import Decimal
 

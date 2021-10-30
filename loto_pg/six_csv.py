@@ -1,7 +1,6 @@
 # coding: utf-8
 
-from loto import public_site
-from loto import db
+from loto_pg import db, public_site
 
 import sys
 

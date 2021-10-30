@@ -3,7 +3,7 @@
 import re
 import csv
 import sys
-from loto import db
+from loto_pg import db
 from datetime import datetime
 
 
