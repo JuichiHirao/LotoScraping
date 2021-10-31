@@ -104,7 +104,7 @@ class MigrationFromCsv:
 
             for idx, buy_tmp_data in enumerate(buy_tmp_list):
                 buy_tmp_data.seq = idx + 1
-                self.mysql_db.buy_export(buy_tmp_data)
+                self.mysql_db.buy_export_mig(buy_tmp_data)
                 # print(buy_tmp_data.num_set)
 
 

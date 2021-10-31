@@ -26,6 +26,25 @@ class LotoData:
         self.updated_at = None
 
 
+class BuysData:
+
+    def __init__(self):
+        self.date_list = []
+        self.num_set_list = []
+        self.buy_list = []
+
+    def parse(self):
+        for target_date in self.date_list:
+            for idx, num_set in enumerate(self.num_set_list):
+                buy_data = BuyData()
+                buy_data.target_date = target_date
+                buy_data.num_set = num_set
+                buy_data.kind = len(buy_data.num_set.split(","))
+                buy_data.seq = idx + 1
+
+                self.buy_list.append(buy_data)
+
+
 class BuyData:
 
     def __init__(self):
@@ -38,3 +57,7 @@ class BuyData:
         self.winning = 0
         self.created_at = None
         self.updated_at = None
+
+    def print(self):
+        # loto_data.lottery_date = datetime.strptime(row[1], '%Y-%m-%d')
+        print('{} seq [{}] {} kind [{}]'.format(self.target_date.strftime('%Y-%m-%d'), self.seq, self.num_set, self.kind))

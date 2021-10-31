@@ -60,6 +60,34 @@ class Loto(MysqlBase):
         sql = """
             INSERT INTO buy(
                 target_date, seq, times, num_set
+                , kind)
+              VALUES (%s, %s, %s, %s
+                , %s);
+            """
+
+        self.cursor.execute(sql, (data.target_date, data.seq, data.times, data.num_set
+                            , data.kind))
+
+        print("buy export {} {}".format(data.kind, data.target_date))
+        self.conn.commit()
+
+    def buy_export_mig(self, data):
+
+        sql = "SELECT created_at FROM buy WHERE target_date = %s AND num_set = %s"
+
+        self.cursor.execute(sql, (data.target_date, data.num_set))
+
+        # print('{}'.format(data.times))
+
+        exist_row = self.cursor.fetchall()
+
+        if exist_row:
+            print('exist buy {} {}'.format(data.times, exist_row))
+            return
+
+        sql = """
+            INSERT INTO buy(
+                target_date, seq, times, num_set
                 , kind, created_at, updated_at)
               VALUES (%s, %s, %s, %s
                 , %s, %s, %s);
