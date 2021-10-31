@@ -25,6 +25,14 @@ class LotoData:
         self.created_at = None
         self.updated_at = None
 
+    def print(self):
+        print('{} {} {} one {}/{} two {}/{} three {}/{} four {}/{} five {}/{} six {}/{} {} {}'.format(
+            self.times, self.lottery_date, self.num_set
+            , self.one_unit, self.one_amount, self.two_unit, self.two_amount
+            , self.three_unit, self.three_amount, self.four_unit, self.four_amount
+            , self.five_unit, self.five_amount, self.six_unit, self.six_amount
+            , self.carryover, self.sales))
+
 
 class BuysData:
 

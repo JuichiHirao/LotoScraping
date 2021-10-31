@@ -43,6 +43,20 @@ class MysqlBase:
 
 class Loto(MysqlBase):
 
+    def get_max_time(self, kind):
+        sql = "SELECT max(times) FROM lotteries WHERE kind = %s"
+
+        self.cursor.execute(sql, (kind, ))
+
+        # print('{}'.format(data.times))
+
+        exist_row = self.cursor.fetchall()
+
+        if exist_row:
+            return exist_row[0][0]
+
+        return -1
+
     def buy_export(self, data):
 
         sql = "SELECT created_at FROM buy WHERE target_date = %s AND num_set = %s"
@@ -128,6 +142,43 @@ class Loto(MysqlBase):
         self.conn.commit()
 
     def export_lotteries(self, data):
+
+        # print('{}'.format(data.times))
+        sql = 'SELECT created_at FROM lotteries WHERE times = %s'
+
+        self.cursor.execute(sql, (data.times, ))
+
+        exist_row = self.cursor.fetchall()
+
+        if exist_row:
+            print('exist {} {}'.format(data.times, exist_row))
+            return
+
+        sql = """
+          INSERT INTO lotteries(
+              lottery_date, times, num_set, kind
+              , one_unit, one_amount, two_unit, two_amount
+              , three_unit, three_amount, four_unit, four_amount
+              , five_unit, five_amount, six_unit, six_amount
+              , sales, carryover)
+            VALUES (
+              %s, %s, %s, %s
+              , %s, %s, %s, %s
+              , %s, %s, %s, %s
+              , %s, %s, %s, %s
+              , %s, %s);
+        """
+
+        self.cursor.execute(sql, (data.lottery_date, data.times, data.num_set, data.kind
+                            , data.one_unit, data.one_amount, data.two_unit, data.two_amount
+                            , data.three_unit, data.three_amount, data.four_unit, data.four_amount
+                            , data.five_unit, data.five_amount, data.six_unit, data.six_amount
+                            , data.sales, data.carryover))
+
+        print("export {}".format(data.times))
+        self.conn.commit()
+
+    def export_lotteries_mig(self, data):
 
         # print('{}'.format(data.times))
         sql = 'SELECT created_at FROM lotteries WHERE times = %s'
