@@ -4,6 +4,7 @@ from datetime import datetime
 class LotoData:
 
     def __init__(self):
+        self.id = -1
         self.lottery_date = datetime.strptime('1900/1/1', '%Y/%m/%d')
         self.times = 0
         self.num_set = ''
@@ -56,6 +57,7 @@ class BuysData:
 class BuyData:
 
     def __init__(self):
+        self.id = -1
         self.csv_id = 0
         self.target_date = None
         self.seq = 0

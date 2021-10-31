@@ -1,6 +1,6 @@
 import yaml
 import mysql.connector
-from loto_data import BuyData
+from loto_data import BuyData, LotoData
 
 
 class MysqlBase:
@@ -56,6 +56,20 @@ class Loto(MysqlBase):
             return exist_row[0][0]
 
         return -1
+
+    def update_winning(self, times, buy_id, winning):
+
+        sql = """
+            UPDATE buy
+              SET times = %s
+                , winning = %s
+              WHERE ID = %s
+        """
+
+        self.cursor.execute(sql, (times, winning, buy_id))
+
+        # print("buy winning update id {} winning {}".format(buy_id, winning))
+        self.conn.commit()
 
     def buy_export(self, data):
 
@@ -232,7 +246,78 @@ class Loto(MysqlBase):
 
         return date_list
 
-    def get_list_from_target_date(self, target_date):
+    def get_lotteries_data_from_target_date(self, target_date):
+
+        sql = """
+            SELECT id, lottery_date, times, num_set, kind
+                , one_unit, one_amount, two_unit, two_amount
+                , three_unit, three_amount, four_unit, four_amount
+                , five_unit, five_amount, six_unit, six_amount
+                , sales, carryover
+                , created_at, updated_at
+              FROM lotteries
+              WHERE lottery_date = %s ORDER BY times
+        """
+
+        self.cursor.execute(sql, (target_date, ))
+
+        rows = self.cursor.fetchall()
+
+        loto_data = None
+        for row in rows:
+            loto_data = LotoData()
+            loto_data.id = row[0]
+            loto_data.lottery_date = row[1]
+            loto_data.times = row[2]
+            loto_data.num_set = row[3]
+            loto_data.kind = row[4]
+            loto_data.one_unit = row[5]
+            loto_data.one_amount = row[6]
+            loto_data.two_unit = row[7]
+            loto_data.two_amount = row[8]
+            loto_data.three_unit = row[9]
+            loto_data.three_amount = row[10]
+            loto_data.four_unit = row[11]
+            loto_data.four_amount = row[12]
+            loto_data.five_unit = row[13]
+            loto_data.five_amount = row[14]
+            loto_data.six_unit = row[15]
+            loto_data.six_amount = row[16]
+            loto_data.sales = row[17]
+            loto_data.created_at = row[18]
+            loto_data.updated_at = row[19]
+
+        return loto_data
+
+    def get_list_from_no_check_winning(self):
+
+        buy_list = []
+        sql = """
+            SELECT id, target_date, seq, times, num_set, kind, created_at, updated_at
+              FROM buy
+              WHERE winning IS NULL
+              ORDER BY target_date ASC, kind ASC, seq ASC;
+        """
+
+        self.cursor.execute(sql)
+
+        rows = self.cursor.fetchall()
+
+        for row in rows:
+            buy_data = BuyData()
+            buy_data.id = row[0]
+            buy_data.target_date = row[1]
+            buy_data.seq = row[2]
+            buy_data.times = row[3]
+            buy_data.num_set = row[4]
+            buy_data.kind = row[5]
+            buy_data.created_at = row[6]
+            buy_data.updated_at = row[7]
+            buy_list.append(buy_data)
+
+        return buy_list
+
+    def get_data_from_target_date(self, target_date):
 
         buy_tmp_list = []
         sql = """
