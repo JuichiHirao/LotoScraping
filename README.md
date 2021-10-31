@@ -74,3 +74,18 @@ soupsieve==1.6.2
 urllib3==1.24.1
 (venv) HIRAOnoMacBook-Pro:LotoScraping juichihirao$ 
 ```
+
+#### テスト用のmysql起動方法
+```
+docker build --platform=linux/amd64 -t mysql:jh .
+```
+```
+[+] Building 0.1s (7/7) FINISHED
+docker run --name mysql-first -e MYSQL_ROOT_PASSWORD=testtest -P --expose=3306 -p 3306:3306 -d mysql:jh
+(venv) hiraojuichi@HIRAOnoMacBook-Pro docker % docker run --name mysql-first -e MYSQL_ROOT_PASSWORD=testtest -P --expose=3306 -p 3306:3306 -d mysql:latest
+WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+9659c59e77342413318e3ae761d626d30985f091ff87cf082c52929d80713599
+(venv) hiraojuichi@HIRAOnoMacBook-Pro docker % docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                                              NAMES
+f33b2733cc17   mysql:latest   "docker-entrypoint.s…"   9 minutes ago   Up 9 minutes   0.0.0.0:3306->3306/tcp, 0.0.0.0:55003->33060/tcp   mysql-first
+```

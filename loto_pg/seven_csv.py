@@ -1,27 +1,23 @@
 # coding: utf-8
 
-from loto import public_site
-from loto import db
+from loto_pg import db, public_site
 
 import sys
 
 # url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/index.html'
-url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/csv/A1021264.CSV'
+url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto7/csv/A1021264.CSV'
 
-check_url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/csv/loto6.csv'
+check_url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto7/csv/loto7.csv'
 
-base_url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/csv/A102'
+base_url = 'https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto7/csv/A103'
 
 args = sys.argv
 
 site_loto = public_site.Loto()
 # みずほ銀行からCSVを取得して最新の回数を設定
-site_loto.set_max_time(check_url, "A52")
-print(site_loto.max_time)
+site_loto.set_max_time(check_url, "A53")
 
-# postgresqlの最新の回数を取得
-db_loto = db.Loto("lotteries")
-print(db_loto.max_time)
+db_loto = db.Loto("seven_lotteries")
 
 if len(args) == 2:
     start = int(args[1])
@@ -35,6 +31,8 @@ else:
 
 print("start " + str(start) + "  end " + str(end))
 
+# postgresqlの最新の回数を取得
+
 # for idx in range(db_loto.max_time+1, site_loto.max_time+1):
 for idx in range(start, end):
     num = '%04d' % idx
@@ -42,9 +40,4 @@ for idx in range(start, end):
     url = base_url + num + ".CSV"
 
     site_loto.parse(url, idx)
-
-    if site_loto.data.times == 0:
-        continue
-
-    db_loto.export(site_loto.data)
-    #print("data one_unit " + str(site_loto.data.one_amount))
+    db_loto.export_seven(site_loto.data)

@@ -1,11 +1,32 @@
+# coding: utf-8
 import urllib.request
 import os
 import codecs
 import re
 import csv
-from loto_data import LotoData
 from datetime import datetime
 
+
+class LotoData:
+
+    def __init__(self):
+        self.lottery_date = datetime.strptime('1900/1/1', '%Y/%m/%d')
+        self.times = 0
+        self.num_set = ''
+        self.one_unit = 0
+        self.one_amount = 0
+        self.two_unit = 0
+        self.two_amount = 0
+        self.three_unit = 0
+        self.three_amount = 0
+        self.four_unit = 0
+        self.four_amount = 0
+        self.five_unit = 0
+        self.five_amount = 0
+        self.six_unit = 0
+        self.six_amount = 0
+        self.carryover = 0
+        self.sales = 0
 
 class Loto:
     def __init__(self):
@@ -14,7 +35,7 @@ class Loto:
     '''
     みずほ銀行の公式サイトで公開されている最新の回数を取得
     '''
-    def get_max_time(self, check_url, continue_str):
+    def set_max_time(self, check_url, continue_str):
         opener = urllib.request.build_opener()
         opener.addheaders = [('User-Agent',
                                    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
@@ -40,8 +61,6 @@ class Loto:
         self.max_time = int(times)
 
         os.remove(filename)
-
-        return self.max_time
 
     def parse(self, url, times):
 
@@ -107,7 +126,6 @@ class Loto:
                 self.data.lottery_date = str_date
 
         os.remove(filename)
-        return self.data
 
     def get_seireki(self, str_wareki):
         if str_wareki.find("平成18") == 0:
