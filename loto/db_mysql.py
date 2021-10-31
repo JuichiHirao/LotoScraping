@@ -295,7 +295,7 @@ class Loto(MysqlBase):
         sql = """
             SELECT id, target_date, seq, times, num_set, kind, created_at, updated_at
               FROM buy
-              WHERE winning IS NULL
+              WHERE winning IS NULL AND target_date <= (SELECT MAX(lottery_date) FROM lotteries)
               ORDER BY target_date ASC, kind ASC, seq ASC;
         """
 

@@ -1,8 +1,7 @@
 import re
 import csv
-import sys
 import db_mysql
-from loto_data import BuysData, BuyData
+from loto_data import BuysData
 from datetime import datetime
 
 
@@ -57,12 +56,13 @@ class BuyRegister:
                 if len(line_row) <= 0:
                     buys_data.parse()
 
-                    for buy_data in buys_data.buy_list:
-                        buy_data.print()
                     continue
 
                 if re.match("[0-9]*/[0-9]*", line_row[0]) or re.match("[2][0][0-9][0-9]", line_row[0]):
+                    if len(buys_data.date_list) > 0:
+                        raise Exception('間に空白行がない可能性があります')
                     buys_data.date_list = line_parse.get_array_date(line_row)
+
                     # print(buys_data.arr_target_date)
                 elif re.match("[0-4][0-9]", line_row[0]):
                     # print("num_set " + row[0])
@@ -77,68 +77,7 @@ class BuyRegister:
             buy_data.print()
 
         return
-        ''''''
-        arr_data = []
-        data = BuyData()
-        # line_parse = LineParse()
-        for row in csv_file_reader:
-            if len(row) <= 0:
-                continue
-            if re.match("[0-9]*/[0-9]*", row[0]) or re.match("[2][0][0-9][0-9]", row[0]):
-                if len(data.arr_target_date) > 0:
-                    arr_data.append(data)
-                data = BuyData()
-                data.arr_target_date = line_parse.get_array_date(row)
-            elif re.match("[0-4][0-9]", row[0]):
-                # print("num_set " + row[0])
-                data.arr_num_set.append(line_parse.get_array_num_set(row))
-            else:
-                print("no match data" + row[0])
 
-        if len(data.arr_target_date) > 0:
-            arr_data.append(data)
-
-        for data in arr_data:
-            data.parse()
-            for detail in data.arr_buy_detail:
-                db_loto.buy_export(detail)
-
-
-'''
-def main():
-    args = sys.argv
-
-
-    csv_file = open("loto/test_data", "r", errors="", newline="")
-
-    f = csv.reader(csv_file, delimiter=" ", skipinitialspace=True)
-
-    arr_data = []
-    data = BuyData()
-    parse = LineParse()
-    for row in f:
-        if len(row) <= 0:
-            continue
-        if re.match("[0-9]*/[0-9]*", row[0]) or re.match("[2][0][0-9][0-9]", row[0]):
-            if len(data.arr_target_date) > 0:
-                arr_data.append(data)
-            data = BuyData()
-            data.arr_target_date = parse.get_array_date(row)
-        elif re.match("[0-4][0-9]", row[0]):
-            # print("num_set " + row[0])
-            data.arr_num_set.append(parse.get_array_num_set(row))
-        else:
-            print("no match data" + row[0])
-
-    if len(data.arr_target_date) > 0:
-        arr_data.append(data)
-
-    for data in arr_data:
-        data.parse()
-        for detail in data.arr_buy_detail:
-            db_loto.buy_export(detail)
-
-'''
 
 if __name__ == '__main__':
     buy_register = BuyRegister()

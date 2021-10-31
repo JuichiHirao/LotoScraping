@@ -35,12 +35,24 @@ class LotoData:
             , self.carryover, self.sales))
 
 
+class WeekdayError(Exception):
+    pass
+
+
 class BuysData:
 
     def __init__(self):
         self.date_list = []
         self.num_set_list = []
         self.buy_list = []
+
+    def check_weekday(self):
+        for target_date in self.date_list:
+            weekday = target_date.weekday()
+
+        # weekday 0 月曜日、3 木曜日
+            if weekday == 0 or weekday == 3:
+                table_name = "seven_lotteries"
 
     def parse(self):
         for target_date in self.date_list:
@@ -51,7 +63,19 @@ class BuysData:
                 buy_data.kind = len(buy_data.num_set.split(","))
                 buy_data.seq = idx + 1
 
+                weekday = target_date.weekday()
+                if buy_data.kind == 6:
+                    # weekday 0 月曜日、3 木曜日
+                    if not (weekday == 0 or weekday == 3):
+                        raise WeekdayError('{}が対象の曜日ではありません SIX[月、木のみ] {}曜日(0 月曜)'.format(target_date, weekday))
+                else:
+                    if not (weekday == 4):
+                        raise WeekdayError('{}が対象の曜日ではありません SEVEN[金のみ] {}曜日(0 月曜)'.format(target_date, weekday))
+
                 self.buy_list.append(buy_data)
+
+        self.date_list = []
+        self.num_set_list = []
 
 
 class BuyData:
