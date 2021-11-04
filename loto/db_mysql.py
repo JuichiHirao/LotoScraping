@@ -15,16 +15,6 @@ class MysqlBase:
 
         self.conn = self.get_conn()
 
-        # テーブル名が指定されていた場合は取得済みの回数を設定
-        if len(table_name) > 0:
-            self.table_name = table_name
-            max_time = self.db.prepare("SELECT max(times) FROM " + table_name)
-            for row in max_time():
-                self.max_time = int(row[0])
-
-        if len(dbname) > 0:
-            self.dbname = dbname
-
         self.cursor = self.conn.cursor()
 
     def get_conn(self):
@@ -284,8 +274,9 @@ class Loto(MysqlBase):
             loto_data.six_unit = row[15]
             loto_data.six_amount = row[16]
             loto_data.sales = row[17]
-            loto_data.created_at = row[18]
-            loto_data.updated_at = row[19]
+            loto_data.carryover = row[18]
+            loto_data.created_at = row[19]
+            loto_data.updated_at = row[20]
 
         return loto_data
 

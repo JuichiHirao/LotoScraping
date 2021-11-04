@@ -1,7 +1,4 @@
-import sys
 import db_mysql
-from loto_data import LotoData
-from datetime import datetime
 from decimal import Decimal
 
 
@@ -25,6 +22,11 @@ class WinningCheck:
     def __init__(self):
 
         self.mysql_db = db_mysql.Loto()
+
+    def execute_try(self):
+
+        lottery_data = self.mysql_db.get_lotteries_data_from_target_date('2021-10-29')
+        lottery_data.print()
 
     def execute(self):
 
