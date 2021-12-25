@@ -7,11 +7,13 @@ from datetime import datetime
 
 class LineParse:
 
-    year = datetime.now().year
+    def __init__(self):
+        self.year = datetime.now().year
 
     def get_array_date(self, array_date):
 
         arr_date = []
+        self.year = datetime.now().year
         for mon_day in array_date:
             if re.match("[2][0][0-9][0-9]", mon_day):
                 # print("year " + row[0])
