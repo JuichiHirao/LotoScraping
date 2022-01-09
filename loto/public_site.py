@@ -101,7 +101,6 @@ class Loto:
             if head.find('販売実績額') == 0:
                 self.data.sales = int(row[1].replace("円", ""))
             if head.find('第') == 0:
-                print(row[2])
                 str_date = self.get_seireki(re.sub(r'(年|月)', "/", row[2]).replace("日", ""))
                 datetime.strptime(str_date, '%Y/%m/%d')
                 self.data.lottery_date = str_date
@@ -110,39 +109,23 @@ class Loto:
         return self.data
 
     def get_seireki(self, str_wareki):
-        if str_wareki.find("平成18") == 0:
-            return str_wareki.replace("平成18", "2006")
-        if str_wareki.find("平成19") == 0:
-            return str_wareki.replace("平成19", "2007")
-        if str_wareki.find("平成20") == 0:
-            return str_wareki.replace("平成20", "2008")
-        if str_wareki.find("平成21") == 0:
-            return str_wareki.replace("平成21", "2009")
-        if str_wareki.find("平成22") == 0:
-            return str_wareki.replace("平成22", "2010")
-        if str_wareki.find("平成23") == 0:
-            return str_wareki.replace("平成23", "2011")
-        if str_wareki.find("平成24") == 0:
-            return str_wareki.replace("平成24", "2012")
-        if str_wareki.find("平成25") == 0:
-            return str_wareki.replace("平成25", "2013")
-        if str_wareki.find("平成26") == 0:
-            return str_wareki.replace("平成26", "2014")
-        if str_wareki.find("平成27") == 0:
-            return str_wareki.replace("平成27", "2015")
-        if str_wareki.find("平成28") == 0:
-            return str_wareki.replace("平成28", "2016")
-        if str_wareki.find("平成29") == 0:
-            return str_wareki.replace("平成29", "2017")
-        if str_wareki.find("平成30") == 0:
-            return str_wareki.replace("平成30", "2018")
-        if str_wareki.find("平成31") == 0:
-            return str_wareki.replace("平成31", "2019")
-        if str_wareki.find("令和1") == 0:
-            return str_wareki.replace("令和1", "2019")
-        if str_wareki.find("令和2") == 0:
-            return str_wareki.replace("令和2", "2020")
-        if str_wareki.find("令和3") == 0:
-            return str_wareki.replace("令和3", "2021")
-        return ""
+
+        # 令和4年1月7日
+        m_wareki_nen = re.search('(令和|平成)(?P<wareki_nen>[0-9]{1,2})/', str_wareki)
+
+        base_year = 0
+        if m_wareki_nen:
+            str_wareki_nen = m_wareki_nen.group('wareki_nen')
+            # 元号のbase_yearは元年の前の年を設定
+            if '平成' in str_wareki:
+                base_year = 1988
+            elif '令和' in str_wareki:
+                base_year = 2018
+        else:
+            raise Exception('平成 or 令和ではありません「{}」'.format(str_wareki))
+
+        year = int(str_wareki_nen) + base_year
+        str_ymd = '{}'.format(str_wareki.replace(m_wareki_nen.group(), '{}/'.format(str(year))))
+
+        return str_ymd
 
