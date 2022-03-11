@@ -148,9 +148,9 @@ class Loto(MysqlBase):
     def export_lotteries(self, data):
 
         # print('{}'.format(data.times))
-        sql = 'SELECT created_at FROM lotteries WHERE times = %s'
+        sql = 'SELECT created_at FROM lotteries WHERE times = %s and kind = %s'
 
-        self.cursor.execute(sql, (data.times, ))
+        self.cursor.execute(sql, (data.times, data.kind))
 
         exist_row = self.cursor.fetchall()
 
