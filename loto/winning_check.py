@@ -1,6 +1,41 @@
-import requests
 import db_mysql
 from decimal import Decimal
+import yaml
+import slack
+from slack import errors
+
+
+class SlackApi:
+
+    def __init__(self):
+        with open('credentials.yml') as file:
+            obj = yaml.load(file, Loader=yaml.FullLoader)
+            self.token = obj['slack_token']
+
+        self.slack_client = slack.WebClient(token=self.token)
+
+    def post(self, str_list, channel):
+
+        response = 'no response'
+        if type(str_list) is list:
+            for str in str_list:
+                response = self.__post__(str, channel)
+        else:
+            response = self.__post__(str_list, channel)
+
+        return response
+
+    def __post__(self, str_data, channel):
+
+        try:
+            response = self.slack_client.chat_postMessage(
+                channel=channel,
+                text=str_data)
+        except errors.SlackApiError as e:
+            response = e.response
+            print(response)
+
+        return response
 
 
 class NumberPrize:
@@ -23,20 +58,22 @@ class WinningCheck:
     def __init__(self):
 
         self.mysql_db = db_mysql.Loto()
-        self.slack_url = "https://hooks.slack.com/services/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"
-        self.slack_headers = {"Content-type": "application/json"}
+        # self.slack_url = "https://hooks.slack.com/services/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"
+        # self.slack_headers = {"Content-type": "application/json"}
+        self.slack_api = SlackApi()
 
     def __send_message_slack(self, message):
         print(message)
 
-        data = {"text": message}
-        response = requests.post(url=self.slack_url, headers=self.slack_headers, json=data)
+        # data = {"text": message}
+        self.slack_api.post(message, '#loto')
+        # response = requests.post(url=self.slack_url, headers=self.slack_headers, json=data)
 
         # レスポンス処理
-        if response.status_code == 200:
-            pass
-        else:
-            print(f"エラー: {response.status_code}")
+        # if response.status_code == 200:
+        #     pass
+        # else:
+        #     print(f"エラー: {response.status_code}")
 
     def execute_try(self):
 
