@@ -1,3 +1,4 @@
+import requests
 import db_mysql
 from decimal import Decimal
 
@@ -22,6 +23,20 @@ class WinningCheck:
     def __init__(self):
 
         self.mysql_db = db_mysql.Loto()
+        self.slack_url = "https://hooks.slack.com/services/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"
+        self.slack_headers = {"Content-type": "application/json"}
+
+    def __send_message_slack(self, message):
+        print(message)
+
+        data = {"text": message}
+        response = requests.post(url=self.slack_url, headers=self.slack_headers, json=data)
+
+        # レスポンス処理
+        if response.status_code == 200:
+            pass
+        else:
+            print(f"エラー: {response.status_code}")
 
     def execute_try(self):
 
@@ -32,14 +47,19 @@ class WinningCheck:
 
         no_winning_list = self.mysql_db.get_list_from_no_check_winning()
 
+        if len(no_winning_list) <= 0:
+            message = "No buy register."
+            self.__send_message_slack(message)
+            return
+
         before_date = None
         for no_winning_data in no_winning_list:
 
             lottery_data = self.mysql_db.get_lotteries_data_from_target_date(no_winning_data.target_date)
 
             if lottery_data is None:
-                print('no match data')
-                no_winning_data.print()
+                message = 'no match data'
+                self.__send_message_slack(message)
 
             one = NumberPrize(lottery_data.one_unit, lottery_data.one_amount)
             two = NumberPrize(lottery_data.two_unit, lottery_data.two_amount)
@@ -52,21 +72,43 @@ class WinningCheck:
 
             if before_date != no_winning_data.target_date:
                 str_date = lottery_data.lottery_date.strftime("%Y-%m-%d")
-                print('')
                 str_kind = 'SEVEN' if lottery_data.kind == 7 else 'SIX'
-                print('{} {}回 {}'.format(str_kind, lottery_data.times, str_date))
-                print('{}'.format(lottery_data.num_set))
-                print('1 {} {}'.format(one.get_unit(), one.get_amount()))
-                print('2 ' + two.get_unit() + ' ' + two.get_amount())
-                print('3 ' + three.get_unit() + ' ' + three.get_amount())
-                print('4 ' + four.get_unit() + ' ' + four.get_amount())
-                print('5 ' + five.get_unit() + ' ' + five.get_amount())
-
                 if no_winning_data.kind == 7:
-                    print('6 ' + six.get_unit() + ' ' + six.get_amount())
-                print('sales ' + '{:,}'.format(Decimal(lottery_data.sales)))
-                print('carry ' + '{:,}'.format(Decimal(lottery_data.carryover)))
-                print('')
+                    output_message = f"""{str_kind} {lottery_data.times}回 {str_date}
+1 {one.get_unit()} {one.get_amount()}
+2 {two.get_unit()} {two.get_amount()}
+3 {three.get_unit()} {three.get_amount()}
+4 {four.get_unit()} {four.get_amount()}
+5 {five.get_unit()} {five.get_amount()}
+6 {six.get_unit()} {six.get_amount()}
+sales {Decimal(lottery_data.sales):,}
+carry {Decimal(lottery_data.carryover):,}
+"""
+                else:
+                    output_message = f"""{str_kind} {lottery_data.times}回 {str_date}
+1 {one.get_unit()} {one.get_amount()}
+2 {two.get_unit()} {two.get_amount()}
+3 {three.get_unit()} {three.get_amount()}
+4 {four.get_unit()} {four.get_amount()}
+5 {five.get_unit()} {five.get_amount()}
+sales {Decimal(lottery_data.sales):,}
+carry {Decimal(lottery_data.carryover):,}
+                """
+                # print('')
+                # print('{} {}回 {}'.format(str_kind, lottery_data.times, str_date))
+                # print('{}'.format(lottery_data.num_set))
+                # print('1 {} {}'.format(one.get_unit(), one.get_amount()))
+                # print('2 ' + two.get_unit() + ' ' + two.get_amount())
+                # print('3 ' + three.get_unit() + ' ' + three.get_amount())
+                # print('4 ' + four.get_unit() + ' ' + four.get_amount())
+                # print('5 ' + five.get_unit() + ' ' + five.get_amount())
+
+                # if no_winning_data.kind == 7:
+                #     print('6 ' + six.get_unit() + ' ' + six.get_amount())
+                # print('sales ' + '{:,}'.format(Decimal(lottery_data.sales)))
+                # print('carry ' + '{:,}'.format(Decimal(lottery_data.carryover)))
+                # print('')
+                self.__send_message_slack(output_message)
 
             if no_winning_data.kind == 6:
                 no_winning_data.winning = self.check_six(lottery_data, no_winning_data)
@@ -114,10 +156,14 @@ class WinningCheck:
             result_amount = lottery_data.one_amount
 
         if result_winning == 0:
-            print("  {} lose match {}".format(detail.seq, len(result), detail.num_set))
+            message = f'  {detail.seq} lose match {len(result)}'
+            self.__send_message_slack(message)
+            # print("  {} lose match {}".format(detail.seq, len(result), detail.num_set))
 
         else:
-            print('  {} winning {}等({:,d}) {}'.format(detail.seq, result_winning, result_amount, detail.num_set))
+            message = f'  {detail.seq} winning {result_winning}等({result_amount:,d} {detail.num_set}'
+            self.__send_message_slack(message)
+            # print('  {} winning {}等({:,d}) {}'.format(detail.seq, result_winning, result_amount, detail.num_set))
 
         return result_winning
 
@@ -158,9 +204,14 @@ class WinningCheck:
             result_amount = lottery_data.one_amount
 
         if result_winning == 0:
-            print("  {} lose match {} {}".format(detail.seq, len(result), detail.num_set))
+            message = f'  {detail.seq} lose match {len(result)}'
+            self.__send_message_slack(message)
+            # print("  {} lose match {}".format(detail.seq, len(result), detail.num_set))
+
         else:
-            print('  {} winning {}等({:,d}) {}'.format(detail.seq, result_winning, result_amount, detail.num_set))
+            message = f'  {detail.seq} winning {result_winning}等({result_amount:,d} {detail.num_set}'
+            self.__send_message_slack(message)
+            # print('  {} winning {}等({:,d}) {}'.format(detail.seq, result_winning, result_amount, detail.num_set))
 
         return result_winning
 
