@@ -222,6 +222,19 @@ class Loto(MysqlBase):
         print("export {}".format(data.times))
         self.conn.commit()
 
+    def get_buy_future_date(self, kind):
+
+        sql = 'SELECT max(target_date) FROM buy WHERE kind = %s ORDER BY target_date DESC;'
+
+        self.cursor.execute(sql, (kind, ))
+
+        rows = self.cursor.fetchall()
+
+        for row in rows:
+            return row[0]
+
+        return None
+
     def get_date_list(self):
 
         date_list = []

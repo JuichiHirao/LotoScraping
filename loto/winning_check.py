@@ -89,6 +89,9 @@ class WinningCheck:
             self.__send_message_slack(message)
             return
 
+        buy_kind = no_winning_list[0].kind
+        buy_future_date = self.mysql_db.get_buy_future_date(buy_kind)
+
         before_date = None
         for no_winning_data in no_winning_list:
 
@@ -118,8 +121,10 @@ class WinningCheck:
 4 {four.get_unit()} {four.get_amount()}
 5 {five.get_unit()} {five.get_amount()}
 6 {six.get_unit()} {six.get_amount()}
+{lottery_data.num_set}
 sales {Decimal(lottery_data.sales):,}
 carry {Decimal(lottery_data.carryover):,}
+last {buy_future_date}
 """
                 else:
                     output_message = f"""{str_kind} {lottery_data.times}回 {str_date}
@@ -128,8 +133,10 @@ carry {Decimal(lottery_data.carryover):,}
 3 {three.get_unit()} {three.get_amount()}
 4 {four.get_unit()} {four.get_amount()}
 5 {five.get_unit()} {five.get_amount()}
+{lottery_data.num_set}
 sales {Decimal(lottery_data.sales):,}
 carry {Decimal(lottery_data.carryover):,}
+last {buy_future_date}
                 """
                 # print('')
                 # print('{} {}回 {}'.format(str_kind, lottery_data.times, str_date))
