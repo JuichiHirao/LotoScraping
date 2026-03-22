@@ -14,18 +14,18 @@ class Loto:
     def __init__(self):
         self.max_time = 0
 
-    def get_max_time(self, check_url, continue_str):
-        # 1. ダウンロード先の設定
         # 現在の作業ディレクトリを取得
-        download_dir = os.getcwd()
+        self.download_dir = os.getcwd()
 
+    def selenium_init(self):
         chrome_options = Options()
+
         # ヘッドレスモード（画面を表示しない）にする場合は以下を有効に
         # chrome_options.add_argument('--headless')
 
         # ダウンロード設定のカスタマイズ
         prefs = {
-            "download.default_directory": download_dir,  # 保存先を現在のフォルダに
+            "download.default_directory": self.download_dir,  # 保存先を現在のフォルダに
             "download.prompt_for_download": False,  # 保存確認ダイアログを表示しない
             "download.directory_upgrade": True,
             "safebrowsing.enabled": True  # セーフブラウジングを有効に
@@ -35,26 +35,31 @@ class Loto:
         # 自動操作特有のフラグを消して検知されにくくする設定
         chrome_options.add_argument('--disable-blink-features=AutomationControlled')
 
-        # 2. WebDriverの起動
-        # ※chromedriverのパスが通っていない場合は service=Service('パス') を指定してください
-        driver = webdriver.Chrome(options=chrome_options)
+        # ※chromedriverのパスが通っていない場合は service=Service('パス') を指定
+        self.driver = webdriver.Chrome(options=chrome_options)
 
+
+    def get_max_time(self, check_url, continue_str, index_url):
+        """
+        みずほ銀行の公式サイトで公開されている最新の回数を取得
+        """
+
+        self.selenium_init()
         try:
-            print("Loto 6 案内ページへアクセス中...")
-            index_url = "https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/index.html"
-            driver.get(index_url)
-            time.sleep(10)  # ページが完全に読み込まれるのを待つ
+            print(f"案内ページへアクセス中... {index_url}")
+            self.driver.get(index_url)
+            time.sleep(5)  # ページが完全に読み込まれるのを待つ
 
             print(f"対象サイトへアクセスします... {check_url}")
-            driver.get(check_url)
+            self.driver.get(check_url)
 
             # ダウンロード完了まで待機（ファイルサイズが小さいので数秒で十分です）
             print("ダウンロード完了を待機中...")
-            time.sleep(10)
+            time.sleep(5)
 
             # 保存されたか確認
             filename = os.path.basename(check_url)
-            expected_file = os.path.join(download_dir, filename)
+            expected_file = os.path.join(self.download_dir, filename)
             if os.path.exists(expected_file):
                 print(f"成功！ファイルが保存されました: {expected_file}")
             else:
@@ -62,10 +67,11 @@ class Loto:
 
         finally:
             # ブラウザを閉じる
-            driver.quit()
+            self.driver.quit()
 
         csv_file = codecs.open(filename, 'r', 'shift_jis')
 
+        times = -1
         for idx, line in enumerate(csv_file):
             l = line[:-1].strip()
             if l.find(continue_str) >= 0:
@@ -76,50 +82,11 @@ class Loto:
                 break
 
         csv_file.close()
-        # print(str(times))
 
         self.max_time = int(times)
+        print(f'最新 {times}回')
 
         os.remove(filename)
-
-        return self.max_time
-
-    '''
-    みずほ銀行の公式サイトで公開されている最新の回数を取得
-    '''
-    def get_max_time_org(self, check_url, continue_str):
-        opener = urllib.request.build_opener()
-        # opener.addheaders = [('User-Agent',
-        #                            'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
-        # サーバーを納得させるための「身分証明書」セット
-        opener.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            # "Referer": "https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto7/index.html",
-            "Referer": "https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/index.html",
-            "Accept-Language": "ja,en-US;q=0.9,en;q=0.8"
-        }
-
-        urllib.request.install_opener(opener)
-
-        filename = os.path.basename(check_url)
-        urllib.request.urlretrieve(check_url, filename)
-
-        csv_file = codecs.open(filename, 'r', 'shift_jis')
-
-        for idx, line in enumerate(csv_file):
-            l = line[:-1].strip()
-            if l.find(continue_str) >= 0:
-                continue
-
-            times = re.sub(u'(第|回.*)', "", l)
-            if len(times) > 0:
-                break
-
-        # print(str(times))
-
-        self.max_time = int(times)
-
-        # os.remove(filename)
 
         return self.max_time
 
@@ -130,74 +97,30 @@ class Loto:
         # 本数字,01,06,27,33,35,43,ボーナス数字,15
 
         self.data = LotoData()
-        filename = os.path.basename(url)
 
-        # 1. ダウンロード先の設定
-        # 現在の作業ディレクトリを取得
-        download_dir = os.getcwd()
-
-        chrome_options = Options()
-        # ヘッドレスモード（画面を表示しない）にする場合は以下を有効に
-        # chrome_options.add_argument('--headless')
-
-        # ダウンロード設定のカスタマイズ
-        prefs = {
-            "download.default_directory": download_dir,  # 保存先を現在のフォルダに
-            "download.prompt_for_download": False,  # 保存確認ダイアログを表示しない
-            "download.directory_upgrade": True,
-            "safebrowsing.enabled": True  # セーフブラウジングを有効に
-        }
-        chrome_options.add_experimental_option("prefs", prefs)
-
-        # 自動操作特有のフラグを消して検知されにくくする設定
-        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-
-        # 2. WebDriverの起動
-        # ※chromedriverのパスが通っていない場合は service=Service('パス') を指定してください
-        driver = webdriver.Chrome(options=chrome_options)
-
-        opener = urllib.request.build_opener()
-        opener.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Referer": "https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto7/index.html",
-            "Accept-Language": "ja,en-US;q=0.9,en;q=0.8"
-        }
-
-        urllib.request.install_opener(opener)
+        self.selenium_init()
 
         filename = os.path.basename(url)
         try:
             print("対象サイトへアクセスします...")
             # 直接CSVのURLを叩く
             # csv_url = "https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto7/csv/loto7.csv"
-            driver.get(url)
+            self.driver.get(url)
 
             # ダウンロード完了まで待機（ファイルサイズが小さいので数秒で十分です）
             print("ダウンロード完了を待機中...")
             time.sleep(5)
 
             # 保存されたか確認
-            expected_file = os.path.join(download_dir, filename)
+            expected_file = os.path.join(self.download_dir, filename)
             if os.path.exists(expected_file):
                 print(f"成功！ファイルが保存されました: {expected_file}")
             else:
-                print("ファイルが見つかりません。ダウンロードに失敗した可能性があります。")
+                print(f"ファイルが見つかりません。ダウンロードに失敗した可能性があります。 {url}")
 
         finally:
             # ブラウザを閉じる
-            driver.quit()
-
-        # csv_file = codecs.open(filename, 'r', 'shift_jis')
-
-        """
-        try:
-            urllib.request.urlretrieve(url, filename)
-        except urllib.error.URLError as e:
-            if e.code == 404:
-                print("404 error " + url)
-                return
-            print(str(e.code) + " " + e.reason)
-        """
+            self.driver.quit()
 
         self.data.times = times
         csv_file = open(filename, "r", encoding="ms932", errors="", newline="")
@@ -245,7 +168,9 @@ class Loto:
                 datetime.strptime(str_date, '%Y/%m/%d')
                 self.data.lottery_date = str_date
 
-        # os.remove(filename)
+        csv_file.close()
+
+        os.remove(filename)
         return self.data
 
     def get_seireki(self, str_wareki):
