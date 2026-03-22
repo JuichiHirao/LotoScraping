@@ -1,5 +1,9 @@
 # Loto Six and Seven Scraping
 
+```
+ssh -i id_ed25519 ec2-user@192.168.11.20
+```
+
 postgresqlに購入情報、公式サイトからの取得を登録
 
 |file| subject|
